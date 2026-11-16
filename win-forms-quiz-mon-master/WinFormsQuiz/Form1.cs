@@ -1,9 +1,11 @@
+using System.CodeDom;
+
 namespace WinFormsQuiz
 {
     public partial class Form1 : Form
     {
         // array of questions and answers
-        string[,] questions = new string[4, 2];
+        string[,] questions = new string[6, 2];
 
         // track current question
         int currentQuestion = 0;
@@ -17,6 +19,18 @@ namespace WinFormsQuiz
         {
             InitializeComponent();
 
+            LoadQuestions();
+
+            Restart.Enabled = false;
+            Restart.Visible = false;
+        }
+
+        /// <summary>
+        /// populate question
+        /// </summary>
+        /// <author>Lucian</author>
+        private void LoadQuestions()
+        {
             // populate array
             questions[0, 0] = "What's the capital of Japan?";
             questions[0, 1] = "Tokyo";
@@ -26,30 +40,50 @@ namespace WinFormsQuiz
             questions[2, 1] = "Chicken";
             questions[3, 0] = "What is 9+10?";
             questions[3, 1] = "21";
+            questions[4, 0] = "What is the course code?";
+            questions[4, 1] = "COMP1115";
+            questions[5, 0] = "What time does the class start?";
+            questions[5, 1] = "2:00pm";
 
             // show 1st question on question label
             lblQuestion.Text = questions[0, 0];
 
-            Restart.Enabled = false;
-            Restart.Visible = false;
         }
 
+        /// <summary>
+        /// give feedback on answer
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="colour"></param>
+        private void ShowFeedback(string text, Color colour)
+        {
+            lblMessage .Text = text;
+            lblMessage.ForeColor = colour;
+        }
+
+        /// <summary>
+        /// user has finished
+        /// </summary>
+        private void FinishQuiz()
+        {
+            btnSubmit.Enabled = false;
+            lblQuestion.Text = $"You got {correct} correct answers out of {questions.GetLength(0)} questions.";
+            
+        }
+        
         private void btnSubmit_Click(object sender, EventArgs e)
         {
-            // MessageBox.Show("You clicked me");
             // if user has entered correct answer in the textbox
             if (txtAnswer.Text == questions[currentQuestion, 1])
             {
-                lblMessage.Text = "Correct";
-                lblMessage.ForeColor = Color.Green;
+                ShowFeedback("Correct", Color.Green);
 
                 // add 1 to correct answer count
                 correct++;
             }
             else
             {
-                lblMessage.Text = "Incorrect";
-                lblMessage.ForeColor = Color.Red;
+                ShowFeedback("Incorrect", Color.Red);
             }
 
             // increment current question 
@@ -63,9 +97,7 @@ namespace WinFormsQuiz
             }
             else
             {
-                // user is done - no more questions
-                btnSubmit.Enabled = false;
-                lblQuestion.Text = $"You got {correct} correct answers out of {questions.GetLength(0)} questions.";
+                FinishQuiz();
                 Restart.Enabled = true;
                 Restart.Visible = true;
                 btnSubmit.Visible = false;
@@ -75,7 +107,16 @@ namespace WinFormsQuiz
             txtAnswer.Text = "";
 
         }
-
+        /// <summary>
+        /// gets percentage of correct answers
+        /// </summary>
+        /// <param name="correct"></param>
+        /// <param name="total"></param>
+        /// <returns>percentage</returns>
+        private int GetPercentScore(int correct, int total)
+        {
+            int percent = (correct * 100) / total;
+        }
         private void Restart_Click(object sender, EventArgs e)
         {
             lblMessage.Text = "Restarting the Quiz";
